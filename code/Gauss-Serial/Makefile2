@@ -1,0 +1,31 @@
+
+FC = gfortran
+FFLAGS = -fbounds-check -fopenmp
+LFLAGS = $(FFLAGS)
+SOURCE = $(wildcard *.f90)
+OBJECTS = $(subst .f90,.o, $(SOURCE))
+
+.PHONY: plots, clean, clobber
+
+%.o : %.f90
+	$(FC) $(FFLAGS) -c $<
+
+jacobi2d.exe:  ${OBJECTS}
+	$(FC) $(LFLAGS) $^ -o $@
+
+solution.txt: jacobi2d.exe
+	@echo 
+	@echo Running code...
+	./jacobi2d.exe
+
+plots: solution.txt
+	@echo 
+	@echo Plotting results...
+	python plot_solution.py
+
+clean:
+	rm -f *.o *.exe
+
+clobber: clean
+	rm -f solution.txt *.png
+
